@@ -1,0 +1,36 @@
+1. a
+SELECT airlinename FROM airline WHERE iata IN ('AU', 'BR', 'CZ');
+
+
+1. b 
+SELECT name FROM airport WHERE iata IS NULL;
+
+1. c 
+SELECT firstname, lastname, salary FROM employee WHERE salary = (SELECT MAX(salary) FROM employee);
+
+2. a 
+SELECT * FROM flightschedule NATURAL JOIN airline WHERE airlinename = "Australia Airlines";
+
+2. b 
+SELECT airline.airline_id, airline.airlinename FROM airline NATURAL JOIN flightschedule GROUP BY airline.airline_id, airline.airlinename HAVING MAX(flightschedule.monday)=0;
+
+2. c
+SELECT CONCAT(p.firstname, ' ', p.lastname) AS passenger_name, f.to AS destination FROM passenger p NATURAL JOIN booking b NATURAL JOIN flight f WHERE CONCAT(p.firstname, ' ', p.lastname) IN ('Buzz Aldrin', 'Jack Clarke');
+
+3. a 
+SELECT * FROM airplane a WHERE NOT EXISTS (SELECT 1 FROM flight f WHERE f.airplane_id = a.airplane_id);
+
+3. b 
+SELECT f.* FROM flight f WHERE f.flight_id IN (SELECT b.flight_id FROM booking b WHERE b.passenger_id IN (SELECT p.passenger_id FROM passenger p GROUP BY p.passenger_id HAVING COUNT(b.booking_id) > 100));
+
+3. c 
+SELECT COUNT(*) AS booking_count FROM booking WHERE price BETWEEN (SELECT AVG(price) - 100 FROM booking) AND (SELECT AVG(price) + 100 FROM booking);
+
+4. a 
+SELECT f.flightno, COUNT(b.booking_id) AS booking_count FROM flight f LEFT JOIN booking b ON f.flight_id = b.flight_id GROUP BY f.flightno ORDER BY booking_count DESC LIMIT 10;
+
+4. b 
+SELECT a.airline_id AS id, a.airlinename, COUNT(DISTINCT f.airplane_id) AS aircraft_count FROM airline a NATURAL JOIN flight f GROUP BY a.airline_id, a.airlinename HAVING COUNT(DISTINCT f.airplane_id) > 85 ORDER BY aircraft_count DESC;
+
+4. c 
+SELECT f.flight_id, a.capacity, (100 * COUNT(b.booking_id) / a.capacity) AS load_factor FROM flight f JOIN booking b ON f.flight_id = b.flight_id JOIN airplane a ON f.airplane_id = a.airplane_id GROUP BY f.flight_id, a.capacity HAVING load_factor > 8 ORDER BY load_factor ASC;
